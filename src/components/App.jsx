@@ -1,49 +1,68 @@
-import React from 'react';
+import React, { useState } from 'react';
 import FeedbackOptions from './FeedbackOptions/FeedbackOptions';
 import Section from './Section/Section';
 import Statistics from './Statistics/Statistics';
 import Notification from './Notification/Notification';
 
+export default function App () {
+  
+  const [countPositiveFeedback, setCountPositiveFeedback] = useState(0);
+  const [countNeutralFeedback, setCountNeutralFeedback] = useState(0);
+  const [countNegativeFeedback, setCountNegativeFeedback] = useState(0);
 
-class App extends React.Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+  function incrPositiveFeedback() {
+    setCountPositiveFeedback(countPositiveFeedback + 1);
+  }
+
+  function incrNeutralFeedback() {
+    setCountNeutralFeedback(countNeutralFeedback + 1);
+  }
+
+  function incrNegativeFeedback() {
+    setCountNegativeFeedback(countNegativeFeedback + 1);
+  }
+
+  const incFeedback = name => {
+    switch (name) {
+      case 'Positive':
+        incrPositiveFeedback();
+        break;
+      case 'Neutral':
+        incrNeutralFeedback();
+        break;
+      case 'Negative':
+        incrNegativeFeedback();
+        break;
+      default:
+        return;
+    }
   };
 
-  countTotalFeedback = () => {
-    return Object.values(this.state).reduce((acc, option) => acc + option, 0);
-  };
-
-  countPositiveFeedbackPercentage = () => {
-    return Math.round((this.state.good / this.countTotalFeedback()) * 100) || 0;
-  };
-
-  incFeedback = modifiedState => {
-    this.setState(prevState => ({
-      [modifiedState]: prevState[modifiedState] + 1,
-    }));
-  };
-
-  render() {
+  function countTotalFeedback() {
+    return countPositiveFeedback + countNeutralFeedback + countNegativeFeedback;
+  }
+    
+  const countPositiveFeedbackPercentage = () => {
+    return Math.round((countPositiveFeedback / countTotalFeedback()) * 100) || 0;
+  };  
+  
     return (
       <div>
         <Section title="Please leave feedback">
           <FeedbackOptions
-            options={this.state}
-            onLeaveFeedback={this.incFeedback}
+            options={['Positive', 'Neutral', 'Negative']}
+            onClick={incFeedback}
           />
         </Section>
 
         <Section title="Statistics">
-          {this.countTotalFeedback() > 0 ? (
+          {countTotalFeedback() > 0 ? (
             <Statistics
-              good={this.state.good}
-              neutral={this.state.neutral}
-              bad={this.state.bad}
-              total={this.countTotalFeedback()}
-              positivePercentage={this.countPositiveFeedbackPercentage()}
+              good={countPositiveFeedback}
+              neutral={countNeutralFeedback}
+              bad={countNegativeFeedback}
+              total={countTotalFeedback()}
+              positivePercentage={countPositiveFeedbackPercentage()}
             />
           ) : (
             <Notification message="No feedback given"/>
@@ -52,6 +71,4 @@ class App extends React.Component {
       </div>
     );
   }
-}
 
-export default App;
